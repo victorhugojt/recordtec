@@ -102,6 +102,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+          trivyignores: '.trivyignore'
 
       - name: Push Docker image (only if scan passes)
         uses: docker/build-push-action@v5

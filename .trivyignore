@@ -1,0 +1,34 @@
+# Trivy Ignore File
+# Documentation: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
+# Format follows OWASP Vulnerable Dependency Management best practices
+# Review Period: Monthly (1st of each month)
+
+# ==============================================================================
+# CVE: CVE-2026-0861
+# Package: glibc (GNU C Library)
+# Severity: HIGH
+# CVSS Score: 7.5
+# Description: Integer overflow in memalign suite of functions
+# 
+# Exception Details:
+# - Type: Risk Accepted
+# - Justification: Limited exploitability - requires attacker control of both
+#   size and alignment arguments. Alignment values are typically constrained
+#   and not user-controlled in this application.
+# - Compensating Controls: Application does not expose memory allocation
+#   parameters to external input
+# 
+# Remediation Plan:
+# - Monitor: Debian/Python base image updates
+# - Action: Update base image when glibc 2.43+ is available
+# - Alternative: Consider Alpine base image (uses musl instead of glibc)
+# 
+# Metadata:
+# - Reported By: Victor Jimenez
+# - Approved By: [Team Lead/Security Officer]
+# - Date Created: 2026-02-16
+# - Review Date: 2026-03-01
+# - Expiration Date: 2026-06-01
+# - Ticket: [JIRA-123 or GitHub Issue #]
+# ==============================================================================
+CVE-2026-0861
