@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  recordtec:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: recordtec:local
+    container_name: recordtec-app
+    ports:
+      - target: 8000
+        published: 8000
+    networks:
+      - recordtec-network
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/src
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - cloudsql
+    restart: unless-stopped
+
+  cloudsql:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.13.0
+    volumes:
+      - type: bind
+        source: ~/.config/gcloud
+        target: /home/nonroot/.config/gcloud
+        read_only: true
+    ports:
+      - target: 3306
+        published: 3306
+    command: --address 0.0.0.0 --port 3306 project-2c268745-0c2f-477a-b6a:us-central1:poc-mysql-instance
+    networks:
+      - recordtec-network
+    restart: unless-stopped
+    
+
+networks:
+  recordtec-network:
+    name: recordtec-network
+    driver: bridge
