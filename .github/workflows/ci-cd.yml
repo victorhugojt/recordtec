@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, github-actions-ci ]
+    branches: [ main, develop, github-actions-ci, cloud-sql-connection ]
     tags:
       - 'v*'
   pull_request:
@@ -37,6 +37,11 @@ jobs:
         uv sync --group dev
 
     - name: Run tests
+      env:
+        DB_HOST: localhost
+        DB_USER: test_user
+        DB_PASSWORD: test_password
+        DB_NAME: test_db
       run: uv run pytest tests/ -v
 
   build-and-push:

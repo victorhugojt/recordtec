@@ -1,0 +1,31 @@
+services:
+  recordtec:
+    image: ghcr.io/victorhugojt/recordtec:github-actions-ci-ee792f3
+    container_name: recordtec-app
+    ports:
+      - "8000:8000"
+    networks:
+      - recordtec-network
+    env_file:
+      - .env.prod
+    depends_on:
+      - cloudsql
+    restart: unless-stopped
+
+  cloudsql:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.13.0
+    ports:
+      - "3306:3306"
+    command: 
+      - "--address=0.0.0.0"
+      - "--port=3306"
+      - "project-2c268745-0c2f-477a-b6a:us-central1:poc-mysql-instance"
+    networks:
+      - recordtec-network
+    restart: unless-stopped
+    
+
+networks:
+  recordtec-network:
+    name: recordtec-network
+    driver: bridge
