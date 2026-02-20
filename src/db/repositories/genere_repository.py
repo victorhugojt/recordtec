@@ -13,22 +13,32 @@ metadata = Base.metadata
 class DbSettings(BaseSettings):
     """Settings for SQL."""
 
-    host: str = Field(..., validation_alias="DB_HOST")
-    user: str = Field(..., validation_alias="DB_USER")
-    password: SecretStr = Field(..., validation_alias="DB_PASSWORD")
+    host: str = Field(default="localhost", validation_alias="DB_HOST")
+    user: str = Field(default="root", validation_alias="DB_USER")
+    password: SecretStr = Field(default="", validation_alias="DB_PASSWORD")
     port: int = Field(default=3306, validation_alias="DB_PORT")
     db_name: str = Field(default="app", validation_alias="DB_NAME")
     connection_type: str = Field(default="direct", validation_alias="DB_CONNECTION_TYPE")
     
     model_config = {
         "env_file": ".env",
+        "env_file_encoding": "utf-8",
         "extra": "ignore",
-        "case_sensitive": True
+        "case_sensitive": True,
+        "validate_default": False
     }
 
-# We need to create an instance of the Pydantic model to access the
-# environment variables.
-db_settings = DbSettings()
+# Lazy initialization - only create when accessed
+_db_settings = None
+
+def get_db_settings():
+    """Get or create DbSettings instance."""
+    global _db_settings
+    if _db_settings is None:
+        _db_settings = DbSettings()
+    return _db_settings
+
+db_settings = get_db_settings()
 
 db_conn_url = (
     "mysql+pymysql://"
