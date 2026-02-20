@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, github-actions-ci ]
+    branches: [ main, develop, github-actions-ci, cloud-sql-connection ]
     tags:
       - 'v*'
   pull_request:
