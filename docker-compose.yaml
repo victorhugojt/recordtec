@@ -1,6 +1,6 @@
 services:
   recordtec:
-    image: ghcr.io/victorhugojt/recordtec:github-actions-ci-ee792f3
+    image: ghcr.io/victorhugojt/recordtec:cloud-sql-connection
     container_name: recordtec-app
     ports:
       - "8000:8000"
@@ -8,8 +8,30 @@ services:
       - recordtec-network
     env_file:
       - .env.prod
+    environment:
+      # OpenTelemetry (set OTEL_ENABLED=true in .env.prod to enable)
+      - OTEL_ENABLED=${OTEL_ENABLED:-false}
+      - OTEL_SERVICE_NAME=recordtec-prod
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4317
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=0.1.0
     depends_on:
       - cloudsql
+      - otel-lgtm
+    restart: unless-stopped
+
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: otel-lgtm
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - loki-data:/loki
+      - tempo-data:/var/tempo
+    networks:
+      - recordtec-network
     restart: unless-stopped
 
   cloudsql:
@@ -24,6 +46,16 @@ services:
       - recordtec-network
     restart: unless-stopped
     
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: otel-lgtm
+    ports:
+      - "3000:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - recordtec-network
+    restart: unless-stopped
 
 networks:
   recordtec-network:
