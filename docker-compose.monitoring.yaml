@@ -1,0 +1,45 @@
+# Docker Compose for Monitoring VM
+# Deploy Grafana OTEL-LGTM stack on separate VM with public IP
+
+services:
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: otel-lgtm
+    ports:
+      - "3000:3000"   # Grafana UI (accessible from internet)
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+    volumes:
+      # Persistent storage for data retention
+      - grafana-data:/data/grafana
+      - tempo-data:/data/tempo
+      - loki-data:/data/loki
+      - mimir-data:/data/mimir
+    restart: unless-stopped
+
+volumes:
+  grafana-data:
+    driver: local
+  tempo-data:
+    driver: local
+  loki-data:
+    driver: local
+  mimir-data:
+    driver: local
+
+# Usage on Monitoring VM:
+# 1. Create this file on the monitoring VM
+# 2. Run: docker compose -f docker-compose.monitoring.yaml up -d
+# 3. Access Grafana at: http://MONITORING_VM_PUBLIC_IP:3000
+#    - Username: admin
+#    - Password: admin (CHANGE THIS!)
+# 4. Configure firewall to allow:
+#    - Port 3000 (from your IP only for security)
+#    - Port 4317 (from backend VM internal IP)
+#    - Port 4318 (optional, if using HTTP)
+
+# Security Notes:
+# - Change default Grafana password immediately
+# - Restrict port 3000 access to your IP only
+# - Use HTTPS in production (add reverse proxy like nginx)
+# - Keep 4317/4318 restricted to backend VM only

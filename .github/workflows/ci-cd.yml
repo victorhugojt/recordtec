@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, github-actions-ci, cloud-sql-connection ]
+    branches: [ main, develop, github-actions-ci, cloud-sql-connection, otel-grafana-integration ]
     tags:
       - 'v*'
   pull_request:

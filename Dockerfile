@@ -16,14 +16,29 @@ RUN apt-get update && \
 # Copy dependency files first for better caching
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies
+# Install dependencies (includes OpenTelemetry)
 RUN uv sync --frozen --no-dev
 
 # Copy application code
 COPY src ./src
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh ./
+
+# Make entrypoint executable
+RUN chmod +x docker-entrypoint.sh
+
 # Expose port
 EXPOSE 8000
 
-# Run the application
-CMD ["uv", "run", "src/main.py"]
+# Set default environment variables
+ENV OTEL_SERVICE_NAME=recordtec \
+    OTEL_EXPORTER_OTLP_PROTOCOL=grpc \
+    OTEL_TRACES_EXPORTER=otlp \
+    OTEL_METRICS_EXPORTER=otlp \
+    OTEL_LOGS_EXPORTER=otlp \
+    OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
+
+# Use entrypoint to support both with/without OpenTelemetry
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["src/main.py"]
