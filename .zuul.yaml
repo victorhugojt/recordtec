@@ -1,6 +1,6 @@
----
 - project:
     name: victorhugojt/recordtec
+    merge-mode: squash
     check:
       jobs:
         - recordtec-check
