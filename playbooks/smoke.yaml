@@ -1,0 +1,7 @@
+---
+- name: Zuul smoke playbook
+  hosts: all
+  tasks:
+    - name: Print generic Zuul check message
+      debug:
+        msg: "Zuul pipeline wiring is working."
